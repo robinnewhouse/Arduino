@@ -756,48 +756,42 @@ void decompressAndDisplayFrame(unsigned long filePositionAfter) {
         yOffset = y * WIDTH;
         for (int x = tbiImageX; x < tbiWidth + tbiImageX; x++) {
 
-            if (tbiWidth > 12) {
-                tbiWidth = 12;
-                continue;
-            }
             // Get the next pixel
             pixel = imageData[yOffset + x];
-            Serial.println(tbiWidth);
-            Serial.println(tbiImageX);
-
 
             // Check pixel transparency
             if (pixel == transparentColorIndex) {
-                Serial.println("Transparent");
+                (*drawPixelCallback)(x, y, 0, 0, 0);
                 continue;
             }
-
-            Serial.println("x");
-            Serial.println(x);
-            Serial.println("y");
-            Serial.println(y);
-            Serial.println("palette[pixel].red");
-            Serial.println(palette[pixel].red);
-            Serial.println("palette[pixel].green");
-            Serial.println(palette[pixel].green);
-            Serial.println("palette[pixel].blue");
-            Serial.println(palette[pixel].blue);
+        if (DEBUG == 1){
+                Serial.print("[x, y] [R, G, B]: [");
+                Serial.print(x);
+                Serial.print(",");
+                Serial.print(y);
+                Serial.print("] [");
+                Serial.print(palette[pixel].red);
+                Serial.print(",");
+                Serial.print(palette[pixel].green);
+                Serial.print(",");
+                Serial.print(palette[pixel].blue);
+                Serial.println("]");
+            }
 
             // Pixel not transparent so get color from palette and draw the pixel
             if(drawPixelCallback)
                 (*drawPixelCallback)(x, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
-            Serial.println("Done Drawing");
         }
     }
     // Make animation frame visible
     // swapBuffers() call can take up to 1/framerate seconds to return (it waits until a buffer copy is complete)
     // note the time before calling
 
-    Serial.println("DEBUG 772");
-
     // wait until time to display next frame
+    Serial.println("========================");
+    Serial.println("Frame Rendering Complete");
+    Serial.println("========================");
     while(nextFrameTime_ms > millis());
-    Serial.println("DEBUG 776");
 
     // calculate time to display next frame
     nextFrameTime_ms = millis() + (10 * frameDelay);

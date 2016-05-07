@@ -1,8 +1,6 @@
 #ifndef LEDMAP_H_INCLUDED
 #define LEDMAP_H_INCLUDED
 
-
-
 const int myPixelMap[576] = {
   0 , 1 , 2 , 3 ,
   4 , 5 , 6 , 7 ,

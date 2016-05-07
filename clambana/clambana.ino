@@ -8,7 +8,7 @@
 #define DATA_PIN 6
 #define LED_TYPE WS2811
 #define DISPLAY_TIME_SECONDS 60
-#define GIF_DIRECTORY "/TEST/"
+#define GIF_DIRECTORY "/gifs/"
 #define SD_CS 4 // depends on shield
 
 
@@ -31,27 +31,24 @@ void updateScreenCallback(void) {
 }
 
 
-// just for testing now
+// just for testing now, should do 3d array
 int getLed(int x, int y, int i) {
-  return myPixelMap[12 * 4 * x + 4 * y + i]; // programmatically gets the right LED
+  return myPixelMap [12 * LED_PER_PIX * x + LED_PER_PIX * y + i]; // programmatically gets the right LED
 }
 
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
   // Fill each LED that belongs to this pixel
-  Serial.println("Drawing");
   if ( x >= 12 || y >= 12) {
-     Serial.println("Index out of bounds");
+    Serial.println("Index out of bounds");
     delay(1000);
     return;
   }
 
+  // draw same color for every LED in this pixel
   for (int i = 0; i < LED_PER_PIX; i++) {
-    int led_index = getLed(x,y,i);
+    int led_index = getLed(x, y, i);
     leds[ led_index ].setRGB(red, green, blue);
-    Serial.println(led_index);
-
   }
-  return;
 }
 
 
@@ -60,22 +57,21 @@ void setup() {
   Serial.begin(9600);
   delay(600);
 
-  pinMode(13, OUTPUT);
+  pinMode(13, OUTPUT); // set clock pin (necessary??)
 
-
-  // set callbacks
+  // set callbacks for gif decoder
   setScreenClearCallback(screenClearCallback);
   setUpdateScreenCallback(updateScreenCallback);
   setDrawPixelCallback(drawPixelCallback);
 
-  // initialize pin type
+  // initialize LED array with the proper LED type
   FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);
+  
   if (!SD.begin(SD_CS)) {
     Serial.println("initialization failed!");
     return;
   }
-  pinMode(SD_CS, OUTPUT);
-
+  pinMode(SD_CS, OUTPUT); // set sd pin as output
 }
 
 
@@ -83,7 +79,7 @@ void setup() {
 void loop() {
 
 
-  //  char pathname[30];
+    char pathname[30];
 
   // Do forever
   while (true) {
@@ -101,15 +97,15 @@ void loop() {
 
     // Calculate time in the future to terminate animation
 
-//    drawPixelCallback(11, 0, 30, 100, 200);
+    //    drawPixelCallback(11, 0, 30, 100, 200);
 
-        futureTime = millis() + (DISPLAY_TIME_SECONDS * 1000);
-    
-        while (futureTime > millis()) {
-          Serial.println("DEBUG 1");
-          processGIFFile("/TEST/PISKEL.GIF");
-          Serial.println("DEBUG 2");
-      }
+    futureTime = millis() + (DISPLAY_TIME_SECONDS * 1000);
+
+    while (futureTime > millis()) {
+      Serial.println("DEBUG 1");
+      processGIFFile("/GIFS/IMPORTED.GIF");
+      Serial.println("DEBUG 2");
+    }
   }
 }
 
