@@ -26,7 +26,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#define DEBUG 1
+#define DEBUG 0 // Set to 1 for debug. Very useful information.
 
 #if DEBUG == 1
 #define DEBUG_SCREEN_DESCRIPTOR                             1
@@ -656,9 +656,6 @@ int processGIFFile(const char *pathname) {
     keyFrame = true;
     prevDisposalMethod = DISPOSAL_NONE;
     transparentColorIndex = NO_TRANSPARENT_INDEX;
-
-    Serial.print("Pathname: ");
-    Serial.println(pathname);
   
     if(file)
         file.close();
@@ -697,7 +694,7 @@ int processGIFFile(const char *pathname) {
     result = parseGIFFileTerminator();
     file.close();
 
-    Serial.println("Success");
+    // Serial.println("Success");
     return result;
 }
 
@@ -761,7 +758,7 @@ void decompressAndDisplayFrame(unsigned long filePositionAfter) {
 
             // Check pixel transparency
             if (pixel == transparentColorIndex) {
-                (*drawPixelCallback)(x, y, 0, 0, 0);
+                // (*drawPixelCallback)(x, y, 0, 0, 0);
                 continue;
             }
         if (DEBUG == 1){
@@ -788,9 +785,11 @@ void decompressAndDisplayFrame(unsigned long filePositionAfter) {
     // note the time before calling
 
     // wait until time to display next frame
-    Serial.println("========================");
-    Serial.println("Frame Rendering Complete");
-    Serial.println("========================");
+    if (DEBUG == 1){
+        Serial.println("========================");
+        Serial.println("Frame Rendering Complete");
+        Serial.println("========================");
+    }
     while(nextFrameTime_ms > millis());
 
     // calculate time to display next frame

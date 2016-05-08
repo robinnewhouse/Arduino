@@ -7,10 +7,11 @@
 #define LED_PER_PIX 4
 #define DATA_PIN 6
 #define LED_TYPE WS2811
-#define DISPLAY_TIME_SECONDS 60
+#define DISPLAY_TIME_SECONDS 10
 #define GIF_DIRECTORY "/gifs/"
 #define SD_CS 4 // depends on shield
 
+long num_files;
 
 // change this to match your SD shield or module;
 // Arduino Ethernet shield: pin 4
@@ -21,13 +22,13 @@ unsigned long futureTime;
 CRGB leds[NUM_LEDS];
 
 void screenClearCallback(void) {
-  Serial.print("DEBUG");
-  return;
+  for (int i = 0; i <= NUM_LEDS; i++) {
+    leds[i] = CRGB::Black;
+  }
 }
 
 void updateScreenCallback(void) {
   FastLED.show();
-  return;
 }
 
 
@@ -53,11 +54,15 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
 
 
 void setup() {
-  // initialize serial communication
+  // Open serial communications and wait for port to open:
   Serial.begin(9600);
-  delay(600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  Serial.println("Serial initialized");
 
   pinMode(13, OUTPUT); // set clock pin (necessary??)
+
 
   // set callbacks for gif decoder
   setScreenClearCallback(screenClearCallback);
@@ -66,45 +71,58 @@ void setup() {
 
   // initialize LED array with the proper LED type
   FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);
-  
+
   if (!SD.begin(SD_CS)) {
     Serial.println("initialization failed!");
     return;
   }
   pinMode(SD_CS, OUTPUT); // set sd pin as output
+
+  Serial.println("Setup Complete");
+  Serial.println("========================");
+
 }
 
 
 
 void loop() {
-
-
-    char pathname[30];
-
   // Do forever
   while (true) {
-    // Can clear screen for new animation here, but this might cause flicker with short animations
-    // matrix.fillScreen(COLOR_BLACK);
-    // matrix.swapBuffers();
+    // get the number of files in the directory
+    num_files = enumerateGIFFiles(GIF_DIRECTORY, false);
 
-    //    getGIFFilenameByIndex(GIF_DIRECTORY, index++, pathname);
-    //    if (index >= num_files) {
-    //      index = 0;
-    //    }
-    //    Serial.print("Path name: ");
-    //    Serial.print(pathname);
-    //    Serial.print("\n");
+    Serial.print(num_files);
+    Serial.println(" animations present.");
 
-    // Calculate time in the future to terminate animation
 
-    //    drawPixelCallback(11, 0, 30, 100, 200);
+    unsigned long futureTime;
+    char pathname[30];
+    // start on a random file
+    randomSeed(analogRead(2)); // initialize random generator
+    int index = random(num_files);
 
-    futureTime = millis() + (DISPLAY_TIME_SECONDS * 1000);
+    // Party forever
+    while (true) {
+      // Strangely this number must be continully updated
+      num_files = enumerateGIFFiles(GIF_DIRECTORY, false);
 
-    while (futureTime > millis()) {
-      Serial.println("DEBUG 1");
-      processGIFFile("/GIFS/IMPORTED.GIF");
-      Serial.println("DEBUG 2");
+      // random
+      //      index = random(num_files);
+      // sequential
+      getGIFFilenameByIndex(GIF_DIRECTORY, index, pathname);
+      if (index >= num_files)
+        index = 0;
+      else index++;
+
+      Serial.print("Now playing: ");
+      Serial.println(pathname);
+
+      // Calculate time in the future to terminate animation
+      futureTime = millis() + (DISPLAY_TIME_SECONDS * 1000);
+
+      while (futureTime > millis()) {
+        processGIFFile(pathname);
+      }
     }
   }
 }
