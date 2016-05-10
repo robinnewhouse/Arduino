@@ -1,12 +1,14 @@
-#include <GIFDecoder.h>
+#define USE_OCTOWS2811
+#include <OctoWS2811.h>
 #include <FastLED.h>
+#include <GIFDecoder.h>
 #include <SD.h>
 #include "LEDMap.h"
 
 #define NUM_LEDS 576
 #define LED_PER_PIX 4
 #define DATA_PIN 6
-#define LED_TYPE WS2811
+#define LED_TYPE OCTOWS2811
 #define DISPLAY_TIME_SECONDS 10
 #define GIF_DIRECTORY "/gifs/"
 #define SD_CS 4 // depends on shield
@@ -22,7 +24,11 @@ int num_files;
 int fileIndex; // file index
 int controlFlag = 0;
 unsigned long futureTime;
-CRGB leds[NUM_LEDS]; // FastLED array
+
+#define NUM_LEDS_PER_STRIP 144
+#define NUM_STRIPS 8
+
+CRGB leds[NUM_STRIPS * NUM_LEDS_PER_STRIP];
 
 void screenClearCallback(void) {
   for (int i = 0; i <= NUM_LEDS; i++) {
@@ -34,7 +40,7 @@ void updateScreenCallback(void) {
   FastLED.show();
 }
 
-void startDrawingCallback(void){
+void startDrawingCallback(void) {
   // read input signals and check flags here.
 }
 
@@ -63,7 +69,7 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial); // wait for serial port to connect. Needed for native USB port only
-  
+
   Serial.println("Serial initialized");
 
   pinMode(13, OUTPUT); // set clock pin (necessary??)
@@ -76,8 +82,8 @@ void setup() {
   setStartDrawingCallback(startDrawingCallback);
 
   // initialize LED array with the proper LED type
-  FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);
-
+  FastLED.addLeds<OCTOWS2811>(leds, NUM_LEDS_PER_STRIP);
+  
   if (!SD.begin(SD_CS)) {
     Serial.println("initialization failed!");
     return;

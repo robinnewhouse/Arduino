@@ -128,7 +128,6 @@ byte imageDataBU[WIDTH * HEIGHT];
 callback screenClearCallback;
 callback updateScreenCallback;
 pixel_callback drawPixelCallback;
-pixel_callback drawPixelCallback2;
 callback startDrawingCallback;
 
 void setStartDrawingCallback(callback f) {
@@ -141,8 +140,6 @@ void setUpdateScreenCallback(callback f) {
 
 void setDrawPixelCallback(pixel_callback f) {
     drawPixelCallback = f;
-    drawPixelCallback2 = f;
-
 }
 
 void setScreenClearCallback(callback f) {
