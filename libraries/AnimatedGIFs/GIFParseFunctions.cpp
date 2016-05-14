@@ -664,7 +664,7 @@ int processGIFFile(const char *pathname) {
         return ERROR_FILEOPEN;
     }
 
-    // Validate the header
+    // Validate the header`
     if (! parseGifHeader()) {
         Serial.println("Not a GIF file");
         file.close();
@@ -697,6 +697,8 @@ int processGIFFile(const char *pathname) {
 
 // Decompress LZW data and display animation frame
 void decompressAndDisplayFrame(unsigned long filePositionAfter) {
+    int  renderTime = micros();
+
 
     // Each pixel of image is 8 bits and is an index into the palette
 
@@ -772,11 +774,20 @@ void decompressAndDisplayFrame(unsigned long filePositionAfter) {
                 Serial.println("]");
             }
 
-            // Pixel not transparent so get color from palette and draw the pixel
-            if(drawPixelCallback)
-                (*drawPixelCallback)(x, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
-        }
-    }
+           // Pixel not transparent so get color from palette and draw the pixel
+            if(drawPixelCallback){
+                if (tbiHeight == 12 && tbiWidth == 12)
+                    (*drawPixelCallback)(x, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
+                if (tbiHeight == 6 && tbiWidth == 6){
+                    // repeat drawing for all floors
+                    (*drawPixelCallback)(x, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
+                    (*drawPixelCallback)(x + 6, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
+                    (*drawPixelCallback)(x, y + 6, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
+                    (*drawPixelCallback)(x + 6 , y + 6, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
+                }
+            }
+
+    }}
     // Make animation frame visible
     // swapBuffers() call can take up to 1/framerate seconds to return (it waits until a buffer copy is complete)
     // note the time before calling
@@ -785,8 +796,14 @@ void decompressAndDisplayFrame(unsigned long filePositionAfter) {
     if (DEBUG == 1){
         Serial.println("========================");
         Serial.println("Frame Rendering Complete");
+        Serial.print("Render Time: " );
+        Serial.println(micros() - renderTime);
         Serial.println("========================");
     }
+
+
+
+
     while(nextFrameTime_ms > millis());
 
     // calculate time to display next frame

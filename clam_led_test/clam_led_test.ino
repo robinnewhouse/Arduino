@@ -21,36 +21,37 @@ void setup() {
 
 
 void loop() {
-  for (int i = 0; i <= NUM_LEDS; i++) {
-    leds[i] = CRGB::White;
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i].r = 200;
   }
   FastLED.show();
-  delay(1000);
+  FastLED.delay(1000);
 
 
-  for (int i = 0; i <= NUM_LEDS; i++) {
+  for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Red;
   }
   FastLED.show();
-  delay(1000);
+  FastLED.delay(1000);
 
-    for (int i = 0; i <= NUM_LEDS; i++) {
-    leds[i] = CRGB::Green;
+    for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i].setRGB(0,255,0);
   }
   FastLED.show();
-  delay(1000);
+  FastLED.delay(1000);
 
-    for (int i = 0; i <= NUM_LEDS; i++) {
+
+    for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Blue;
   }
   FastLED.show();
-  delay(1000);
+  FastLED.delay(1000);
 
-    for (int i = 0; i <= NUM_LEDS; i++) {
+    for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Purple;
   }
   FastLED.show();
-  delay(1000);
+  FastLED.delay(1000);
 
 }
 

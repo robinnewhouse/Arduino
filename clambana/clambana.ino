@@ -7,9 +7,10 @@
 #define LED_PER_PIX 4
 #define DATA_PIN 6
 #define LED_TYPE WS2811
-#define DISPLAY_TIME_SECONDS 10
+#define DISPLAY_TIME_SECONDS 1
 #define GIF_DIRECTORY "/gifs/"
-#define SD_CS 4 // depends on shield
+#define SD_CS 3 // depends on shield
+// need to set SD_CS to 3 for modified hardware
 
 
 
@@ -19,9 +20,10 @@
 // Sparkfun SD shield: pin 8
 
 int num_files;
-int fileIndex; // file index
+//int fileIndex; // file index
 int controlFlag = 0;
 unsigned long futureTime;
+
 CRGB leds[NUM_LEDS]; // FastLED array
 
 void screenClearCallback(void) {
@@ -34,7 +36,7 @@ void updateScreenCallback(void) {
   FastLED.show();
 }
 
-void startDrawingCallback(void){
+void startDrawingCallback(void) {
   // read input signals and check flags here.
 }
 
@@ -63,7 +65,7 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial); // wait for serial port to connect. Needed for native USB port only
-  
+
   Serial.println("Serial initialized");
 
   pinMode(13, OUTPUT); // set clock pin (necessary??)
@@ -105,7 +107,7 @@ void loop() {
     char pathname[30];
     // start on a random file
     randomSeed(analogRead(2)); // initialize random generator
-    fileIndex = random(num_files);
+    int fileIndex = random(num_files);
 
     // Party forever
     while (true) {
@@ -116,7 +118,7 @@ void loop() {
       //      fileIndex = random(num_files);
       // sequential
       getGIFFilenameByIndex(GIF_DIRECTORY, fileIndex, pathname);
-      if (fileIndex >= num_files)
+      if (fileIndex >= num_files - 1)
         fileIndex = 0;
       else fileIndex++;
 

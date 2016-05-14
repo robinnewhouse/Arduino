@@ -33,11 +33,15 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+
+}
+
+void loop() {
   Serial.print("Initializing SD card...");
 
-  if (!SD.begin(4)) {
+  if (!SD.begin(3 )) {
     Serial.println("initialization failed!");
-    return;
+//    return;
   }
   Serial.println("initialization done.");
 
@@ -45,12 +49,7 @@ void setup() {
 
   printDirectory(root, 0);
 
-  Serial.println("done!");
-}
-
-void loop() {
-  // nothing happens after setup finishes.
-}
+  Serial.println("done!");}
 
 void printDirectory(File dir, int numTabs) {
   while (true) {
