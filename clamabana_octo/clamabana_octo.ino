@@ -8,8 +8,8 @@
 #define NUM_LEDS_PER_STRIP 144
 #define NUM_STRIPS 8
 const int NUM_LEDS = NUM_LEDS_PER_STRIP * NUM_STRIPS;
-#define LED_PER_PIX 4
-#define DATA_PIN 6
+#define LED_PER_PIX 8
+//#define DATA_PIN 6
 #define LED_TYPE OCTOWS2811
 #define DISPLAY_TIME_SECONDS 1
 #define GIF_DIRECTORY "/gifs/"
@@ -62,7 +62,9 @@ void startDrawingCallback(void) {
 
 // just for testing now, should do 3d array
 int getLed(int x, int y, int i) {
-  return myPixelMap [12 * LED_PER_PIX * x + LED_PER_PIX * y + i]; // programmatically gets the right LED
+  //  return myPixelMap [12 * LED_PER_PIX * x + LED_PER_PIX * y + i]; // programmatically gets the right LED
+  return myPixelMap [x][ y][i];
+
 }
 
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
@@ -73,12 +75,21 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
     return;
   }
 
+  Serial.print(x);
+  Serial.print(", ");
+  Serial.print(y);
+  Serial.print(": [");
   // draw same color for every LED in this pixel
   for (int i = 0; i < LED_PER_PIX; i++) {
-    int led_index = getLed(x, y, i);
+    int led_index = myPixelMap [x][y][i];
+    Serial.print(led_index);
+    Serial.print(", ");
+
     // converts rgb to hex
     leds.setPixel(led_index, ((red << 16) | (green << 8) | blue));
   }
+  Serial.println("]");
+
 }
 
 
