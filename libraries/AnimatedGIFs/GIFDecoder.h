@@ -11,6 +11,7 @@ typedef void* (*get_buffer_callback)(void);
 void setScreenClearCallback(callback f);
 void setUpdateScreenCallback(callback f);
 void setDrawPixelCallback(pixel_callback f);
+void setDrawPixelCallback24(pixel_callback f);
 void setStartDrawingCallback(callback f);
 
 // public

@@ -5,13 +5,13 @@
 #include <SD.h>
 #include "LEDMap.h"
 
-#define NUM_LEDS_PER_STRIP 144
-#define NUM_STRIPS 8
+#define NUM_LEDS_PER_STRIP 288
+#define NUM_STRIPS 4
 const int NUM_LEDS = NUM_LEDS_PER_STRIP * NUM_STRIPS;
 #define LED_PER_PIX 8
 //#define DATA_PIN 6
 #define LED_TYPE OCTOWS2811
-#define DISPLAY_TIME_SECONDS 1
+#define DISPLAY_TIME_SECONDS 10
 #define GIF_DIRECTORY "/gifs/"
 #define SD_CS 3 // depends on shield
 // need to set SD_CS to 3 for modified hardware
@@ -46,51 +46,78 @@ unsigned long futureTime;
 OctoWS2811 leds(NUM_LEDS_PER_STRIP, displayMemory, drawingMemory, config);
 
 void screenClearCallback(void) {
+  // Wipe all black
   for (int i = 0; i <= NUM_LEDS; i++) {
-    //    leds[i] = CRGB::Black;
     leds.setPixel(i, BLACK);
   }
-
 }
 
 void updateScreenCallback(void) {
+  // Render current LED array
   leds.show();
 }
 
 void startDrawingCallback(void) {
 }
 
-// just for testing now, should do 3d array
-int getLed(int x, int y, int i) {
-  //  return myPixelMap [12 * LED_PER_PIX * x + LED_PER_PIX * y + i]; // programmatically gets the right LED
-  return myPixelMap [x][ y][i];
-
-}
-
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
   // Fill each LED that belongs to this pixel
   if ( x >= 12 || y >= 12) {
-    Serial.println("Index out of bounds");
-    delay(1000);
+    Serial.print("x: ");
+    Serial.print(x);
+
+    Serial.print("y: ");
+    Serial.print(y);
+    Serial.println(" Index out of bounds");
+    //    delay(10);
     return;
   }
 
-  Serial.print(x);
-  Serial.print(", ");
-  Serial.print(y);
-  Serial.print(": [");
+  //  Serial.print(x);
+  //  Serial.print(", ");
+  //  Serial.print(y);
+  //  Serial.print(": [");
   // draw same color for every LED in this pixel
   for (int i = 0; i < LED_PER_PIX; i++) {
     int led_index = myPixelMap [x][y][i];
-    Serial.print(led_index);
-    Serial.print(", ");
+    //    Serial.print(led_index);
+    //    Serial.print(", ");
 
     // converts rgb to hex
     leds.setPixel(led_index, ((red << 16) | (green << 8) | blue));
   }
-  Serial.println("]");
+  //  Serial.println("]");
+}
+
+
+void drawPixelCallback24(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
+  // Fill each LED that belongs to this pixel
+  //  if ( x >= 24 || y >= 24) {
+  //    Serial.println("Index out of bounds 24");
+  //    delay(1000);
+  //    return;
+  //  }
+
+  //  Serial.print(x);
+  //  Serial.print(", ");
+  //  Serial.print(y);
+  //  Serial.print(": [");
+  // draw two LEDs in one pixel to increase resolution
+
+  int led_index_1 = myRawMap [x * 2 + y * 24 * 2];
+  int led_index_2 = myRawMap [x * 2 + 1 + y * 24 * 2];
+  //  Serial.print(led_index_1);
+  //  Serial.print(", ");
+  //  Serial.print(led_index_2);
+  //  Serial.print(", ");
+
+  // converts rgb to hex
+  leds.setPixel(led_index_1, ((red << 16) | (green << 8) | blue));
+  leds.setPixel(led_index_2, ((red << 16) | (green << 8) | blue));
+  //  Serial.println("]");
 
 }
+
 
 
 void setup() {
@@ -107,6 +134,7 @@ void setup() {
   setScreenClearCallback(screenClearCallback);
   setUpdateScreenCallback(updateScreenCallback);
   setDrawPixelCallback(drawPixelCallback);
+  setDrawPixelCallback24(drawPixelCallback24);
   setStartDrawingCallback(startDrawingCallback);
 
   // initialize LED array with the proper LED type

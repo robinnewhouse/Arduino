@@ -57,8 +57,8 @@
 
 File file;
 
-const int WIDTH  = 12;
-const int HEIGHT = 12;
+const int WIDTH  = 24;
+const int HEIGHT = 24;
 // maximum bounds of the decoded GIF (dimensions of imageData buffer)
 
 // Error codes
@@ -128,6 +128,7 @@ byte imageDataBU[WIDTH * HEIGHT];
 callback screenClearCallback;
 callback updateScreenCallback;
 pixel_callback drawPixelCallback;
+pixel_callback drawPixelCallback24;
 callback startDrawingCallback;
 
 void setStartDrawingCallback(callback f) {
@@ -140,6 +141,10 @@ void setUpdateScreenCallback(callback f) {
 
 void setDrawPixelCallback(pixel_callback f) {
     drawPixelCallback = f;
+}
+
+void setDrawPixelCallback24(pixel_callback f) {
+    drawPixelCallback24 = f;
 }
 
 void setScreenClearCallback(callback f) {
@@ -776,6 +781,8 @@ void decompressAndDisplayFrame(unsigned long filePositionAfter) {
 
            // Pixel not transparent so get color from palette and draw the pixel
             if(drawPixelCallback){
+                if (tbiHeight == 24 && tbiWidth == 24)
+                    (*drawPixelCallback24)(x, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
                 if (tbiHeight == 12 && tbiWidth == 12)
                     (*drawPixelCallback)(x, y, palette[pixel].red, palette[pixel].green, palette[pixel].blue);
                 if (tbiHeight == 6 && tbiWidth == 6){
